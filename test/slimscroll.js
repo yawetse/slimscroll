@@ -1,10 +1,9 @@
 /*
- * linotype
- * https://github.com/condenast
+ * slimscroll
+ * http://github.com/yawetse/slimscroll
  *
- * Copyright (c) 2013 Condé Nast. All rights reserved.
+ * Copyright (c) 2014 Yaw Joseph Etse. All rights reserved.
  */
-
 'use strict';
 
 var should = require('chai').should(),

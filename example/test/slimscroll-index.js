@@ -24,28 +24,34 @@ window.onload =function(){
 };
 
 },{"../../../lib/Slimscroll":2}],2:[function(require,module,exports){
-/* jshint debug:true */
 /*
- * linotype
- * https://github.com/typesettin/linotype
- * @author yaw joseph etse
- * Copyright (c) 2014 Typesettin. All rights reserved.
+ * slimscroll
+ * http://github.com/yawetse/slimscroll
+ *
+ * Copyright (c) 2014 Yaw Joseph Etse. All rights reserved.
  */
-
 'use strict';
 
 var classie = require('classie'),
 	extend = require('util-extend'),
-	domhelper = require('./domhelper');
-// 	events = require('events'),
-// 	util = require('util');
+	domhelper = require('domhelper');
 
 /**
- * creates slim scrollers.
- * @author yaw joseph etse
- * @module
+ * Slimscroll is a small commonjs module with no library dependencies (sans jquery) that transforms any div into a scrollable area with a nice scrollbar
+ * @{@link https://github.com/yawetse/slimscroll}
+ * @author Yaw Joseph Etse
+ * @copyright Copyright (c) 2014 Yaw Joseph Etse. All rights reserved.
+ * @license MIT
+ * @module slimscroll
+ * @requires module:classie
+ * @requires module:util-extent
+ * @requires module:util
+ * @requires module:domhelper
+ * @requires module:events
+ * @todo need to switch to node events
  */
 var slimscroll = function(options,elementsArray){
+	/** module default configuration */
 	var defaults = {
 			idSelector: 'body',
 			width : 'auto',// width in pixels of the visible scroll area
@@ -91,6 +97,9 @@ var slimscroll = function(options,elementsArray){
 		lastScroll,
 		isOverPanel;
 
+	/**
+	 * creates new slimscrolls
+	 */
 	this.init = function(){
 		// do it for every element that matches selector
 		for(var x=0; x<thisElements.length;x++){
@@ -139,8 +148,8 @@ var slimscroll = function(options,elementsArray){
 					}
 
 					// scroll content by the given offset
-					console.log("add scrollContent");
-					// scrollContent(offset, false, true);
+					// console.log("add scrollContent");
+					scrollContent(offset, false, true,me);
 				}
 				return;
 			}
@@ -244,6 +253,11 @@ var slimscroll = function(options,elementsArray){
 		document.addEventListener('touchmove',scrollContainerTouchMoveEventHandler);
 	}.bind(this);
 
+	/**
+	 * Removes the auto scrolling for touch devices.
+	 * @memberOf slimscroll
+	 * @private
+	 */
 	function getBarHeight(){
 		if(!bar){
 			bar = currentBar;
@@ -257,6 +271,10 @@ var slimscroll = function(options,elementsArray){
 		bar.style.display= display;
 	}
 
+	/**
+	 * Removes the auto scrolling for touch devices.
+	 * @function
+	 */
 	function scrollContent(y, isWheel, isJump,element,bar,isTouch){
 		releaseScroll = false;
 		var delta = y;
@@ -383,8 +401,6 @@ var slimscroll = function(options,elementsArray){
 
 		var target = e.target;
 		var parentWrapper = domhelper.getParentElement(target,o.wrapperClass);
-		console.log("parentWrapper",parentWrapper);
-		console.log("me",me);
 		if (parentWrapper /* && parentWrapper.isEqualNode(me.parentNode)*/ ){
 			// scroll content
 			scrollContent(delta, true,null,parentWrapper.querySelector('.'+o.addedOriginalClass));
@@ -484,7 +500,110 @@ module.exports = slimscroll;
 if ( typeof window === "object" && typeof window.document === "object" ) {
 	window.slimscroll = slimscroll;
 }
-},{"./domhelper":3,"classie":4,"util-extend":6}],3:[function(require,module,exports){
+},{"classie":3,"domhelper":5,"util-extend":7}],3:[function(require,module,exports){
+/*
+ * classie
+ * http://github.amexpub.com/modules/classie
+ *
+ * Copyright (c) 2013 AmexPub. All rights reserved.
+ */
+
+module.exports = require('./lib/classie');
+
+},{"./lib/classie":4}],4:[function(require,module,exports){
+/*!
+ * classie - class helper functions
+ * from bonzo https://github.com/ded/bonzo
+ * 
+ * classie.has( elem, 'my-class' ) -> true/false
+ * classie.add( elem, 'my-new-class' )
+ * classie.remove( elem, 'my-unwanted-class' )
+ * classie.toggle( elem, 'my-class' )
+ */
+
+/*jshint browser: true, strict: true, undef: true */
+/*global define: false */
+'use strict';
+
+  // class helper functions from bonzo https://github.com/ded/bonzo
+
+  function classReg( className ) {
+    return new RegExp("(^|\\s+)" + className + "(\\s+|$)");
+  }
+
+  // classList support for class management
+  // altho to be fair, the api sucks because it won't accept multiple classes at once
+  var hasClass, addClass, removeClass;
+
+  if (typeof document === "object" && 'classList' in document.documentElement ) {
+    hasClass = function( elem, c ) {
+      return elem.classList.contains( c );
+    };
+    addClass = function( elem, c ) {
+      elem.classList.add( c );
+    };
+    removeClass = function( elem, c ) {
+      elem.classList.remove( c );
+    };
+  }
+  else {
+    hasClass = function( elem, c ) {
+      return classReg( c ).test( elem.className );
+    };
+    addClass = function( elem, c ) {
+      if ( !hasClass( elem, c ) ) {
+        elem.className = elem.className + ' ' + c;
+      }
+    };
+    removeClass = function( elem, c ) {
+      elem.className = elem.className.replace( classReg( c ), ' ' );
+    };
+  }
+
+  function toggleClass( elem, c ) {
+    var fn = hasClass( elem, c ) ? removeClass : addClass;
+    fn( elem, c );
+  }
+
+  var classie = {
+    // full names
+    hasClass: hasClass,
+    addClass: addClass,
+    removeClass: removeClass,
+    toggleClass: toggleClass,
+    // short names
+    has: hasClass,
+    add: addClass,
+    remove: removeClass,
+    toggle: toggleClass
+  };
+
+  // transport
+
+  if ( typeof module === "object" && module && typeof module.exports === "object" ) {
+    // commonjs / browserify
+    module.exports = classie;
+  } else {
+    // AMD
+    define(classie);
+  }
+
+  // If there is a window object, that at least has a document property,
+  // define classie
+  if ( typeof window === "object" && typeof window.document === "object" ) {
+    window.classie = classie;
+  }
+},{}],5:[function(require,module,exports){
+/*
+ * domhelper
+ * http://github.com/yawetse/domhelper
+ *
+ * Copyright (c) 2014 Yaw Joseph Etse. All rights reserved.
+ */
+
+module.exports = require('./lib/domhelper');
+
+},{"./lib/domhelper":6}],6:[function(require,module,exports){
 /*
  * linotype
  * https://github.com/typesettin/linotype
@@ -796,100 +915,7 @@ module.exports = domhelper;
 if ( typeof window === "object" && typeof window.document === "object" ) {
 	window.domhelper = domhelper;
 }
-},{"classie":4}],4:[function(require,module,exports){
-/*
- * classie
- * http://github.amexpub.com/modules/classie
- *
- * Copyright (c) 2013 AmexPub. All rights reserved.
- */
-
-module.exports = require('./lib/classie');
-
-},{"./lib/classie":5}],5:[function(require,module,exports){
-/*!
- * classie - class helper functions
- * from bonzo https://github.com/ded/bonzo
- * 
- * classie.has( elem, 'my-class' ) -> true/false
- * classie.add( elem, 'my-new-class' )
- * classie.remove( elem, 'my-unwanted-class' )
- * classie.toggle( elem, 'my-class' )
- */
-
-/*jshint browser: true, strict: true, undef: true */
-/*global define: false */
-'use strict';
-
-  // class helper functions from bonzo https://github.com/ded/bonzo
-
-  function classReg( className ) {
-    return new RegExp("(^|\\s+)" + className + "(\\s+|$)");
-  }
-
-  // classList support for class management
-  // altho to be fair, the api sucks because it won't accept multiple classes at once
-  var hasClass, addClass, removeClass;
-
-  if (typeof document === "object" && 'classList' in document.documentElement ) {
-    hasClass = function( elem, c ) {
-      return elem.classList.contains( c );
-    };
-    addClass = function( elem, c ) {
-      elem.classList.add( c );
-    };
-    removeClass = function( elem, c ) {
-      elem.classList.remove( c );
-    };
-  }
-  else {
-    hasClass = function( elem, c ) {
-      return classReg( c ).test( elem.className );
-    };
-    addClass = function( elem, c ) {
-      if ( !hasClass( elem, c ) ) {
-        elem.className = elem.className + ' ' + c;
-      }
-    };
-    removeClass = function( elem, c ) {
-      elem.className = elem.className.replace( classReg( c ), ' ' );
-    };
-  }
-
-  function toggleClass( elem, c ) {
-    var fn = hasClass( elem, c ) ? removeClass : addClass;
-    fn( elem, c );
-  }
-
-  var classie = {
-    // full names
-    hasClass: hasClass,
-    addClass: addClass,
-    removeClass: removeClass,
-    toggleClass: toggleClass,
-    // short names
-    has: hasClass,
-    add: addClass,
-    remove: removeClass,
-    toggle: toggleClass
-  };
-
-  // transport
-
-  if ( typeof module === "object" && module && typeof module.exports === "object" ) {
-    // commonjs / browserify
-    module.exports = classie;
-  } else {
-    // AMD
-    define(classie);
-  }
-
-  // If there is a window object, that at least has a document property,
-  // define classie
-  if ( typeof window === "object" && typeof window.document === "object" ) {
-    window.classie = classie;
-  }
-},{}],6:[function(require,module,exports){
+},{"classie":3}],7:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
