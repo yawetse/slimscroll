@@ -36,6 +36,7 @@
     "dom",
     "no jquery",
     "scrollable",
-    "scrollbar"
+    "scrollbar",
+    "scrollbar replacement"
   ]
 }
